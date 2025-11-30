@@ -1,71 +1,79 @@
-import { useState } from "react";
+import React, { useEffect, useMemo, useState } from 'react';
+import { images } from '../assets/images';
+import DialogueBox from './DialogueBox';
+import ChoiceButtons from './ChoiceButtons';
 
-export default function SceneRenderer({ sceneData, onNextScene, updatePlayer }) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const step = sceneData.steps[stepIndex];
+const SceneRenderer = ({ scene, onUpdateStats, onNextScene, onFinish }) => {
+  const [step, setStep] = useState(0);
 
-  function next(optionIndex = null) {
-    // если это выбор
-    if (optionIndex !== null) {
-      const option = step.options[optionIndex];
+  useEffect(() => {
+    setStep(0);
+  }, [scene?.id]);
 
-      if (option.fear) updatePlayer("fear", option.fear);
-      if (option.investigation) updatePlayer("investigation", option.investigation);
-      if (option.item) updatePlayer("inventory", option.item);
+  const current = useMemo(() => scene?.steps?.[step] || null, [scene, step]);
+  const background = useMemo(() => images[scene?.background] || images.city, [scene]);
 
-      if (option.nextScene) {
-        onNextScene(option.nextScene);
-        setStepIndex(0);
-        return;
-      }
-
-      if (typeof option.next === "number") {
-        setStepIndex(option.next);
-        return;
-      }
-    } else {
-      // обычный переход
-      if (step.nextScene) {
-        onNextScene(step.nextScene);
-        setStepIndex(0);
-        return;
-      }
-      setStepIndex((i) => i + 1);
+  useEffect(() => {
+    if (!current) return;
+    if (current.type === 'goto' && current.target) {
+      onNextScene(current.target);
     }
-  }
+    if (current.type === 'end') {
+      onFinish(current.label || 'Финал');
+    }
+    if (current.type === 'add_item') {
+      onUpdateStats({ item: current.item });
+      setStep((prev) => Math.min((current.next ?? prev + 1), scene.steps.length - 1));
+    }
+  }, [current, onFinish, onNextScene, onUpdateStats, scene?.steps?.length]);
+
+  if (!scene || !current) return null;
+
+  const handleNext = (nextIndex = step + 1) => setStep(Math.min(nextIndex, scene.steps.length - 1));
+
+  const handleChoice = (option) => {
+    onUpdateStats({
+      fear: option.fear || 0,
+      investigation: option.investigation || 0,
+      moral: option.moral || 0,
+      item: option.item,
+    });
+    if (option.nextScene) {
+      onNextScene(option.nextScene);
+      return;
+    }
+    handleNext(option.next ?? step + 1);
+  };
+
+  const renderStep = () => {
+    switch (current.type) {
+      case 'dialogue':
+        return (
+          <DialogueBox
+            speaker={current.speaker}
+            text={current.text}
+            onNext={() => handleNext()}
+            accent="#f97316"
+          />
+        );
+      case 'choice':
+        return <ChoiceButtons text={current.text} options={current.options || []} onSelect={handleChoice} />;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>{sceneData.title}</h2>
-
-      {step.type === "dialogue" && (
-        <div>
-          <p style={{ marginBottom: 12 }}>
-            <b>{step.character}:</b> {step.text}
-          </p>
-          <button onClick={() => next()}>Далее</button>
+    <div className="scene-shell" style={{ backgroundImage: `url(${background})` }}>
+      <div className="panel-frame">
+        <div className="panel-meta">
+          <span className="pill muted">{scene.title}</span>
+          <span className="pill">Шаг {step + 1} / {scene.steps.length}</span>
         </div>
-      )}
-
-      {step.type === "choice" && (
-        <div>
-          <p style={{ marginBottom: 12 }}>{step.text}</p>
-          {step.options.map((o, i) => (
-            <div key={i} style={{ marginBottom: 8 }}>
-              <button onClick={() => next(i)}>{o.label}</button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {step.type === "add_item" && (
-        <div>
-          <p style={{ marginBottom: 12 }}>
-            Вы получили: <b>{step.item}</b>
-          </p>
-          <button onClick={() => next()}>Далее</button>
-        </div>
-      )}
+        {renderStep()}
+      </div>
     </div>
   );
-}
+};
+
+export default SceneRenderer;
