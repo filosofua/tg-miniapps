@@ -1,16 +1,49 @@
-# React + Vite
+# Telegram Mini App — История + кликер
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Мини-приложение на React 19 + Vite: ветвящийся сюжет с диалогами и выбором, плюс фарм-кликерный режим. Оптимизировано под Telegram Web Apps.
 
-Currently, two official plugins are available:
+## Возможности
+- Сюжетные сцены с выбором, наградами и переходами по веткам.
+- Фарм-режим с пассивным доходом, бонусами за клики и апгрейдами.
+- Сохранение прогресса (страх, расследование, инвентарь, фарм) в `localStorage`.
+- Инициализация Telegram WebApp (`expand` / `ready`) для корректного старта в мини-приложении.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Структура проекта
+- `src/main.jsx` — точка входа, инициализирует Telegram WebApp SDK и монтирует приложение.
+- `src/App.jsx` — верхнеуровневое состояние: переключение режима (story/farm), характеристики героя, инвентарь, сохранения.
+- `src/components/SceneRenderer.jsx` — отрисовывает шаги сюжета, выборы, награды и переходы между сценами.
+- `src/components/ClickerFarm.jsx` — логика кликера: пассивный доход, клики, апгрейды, сброс истории.
+- `src/scenes/scene1.js … scene6.js` — сценарии с шагами диалогов и выборов.
+- `src/index.css`, `src/App.css` — глобальные и компонентные стили.
 
-## React Compiler
+## Локальный запуск (dev)
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Продоподобный билд и превью
+Чтобы проверить так же, как в проде внутри Telegram:
+```bash
+npm run build
+npm run preview
+```
+Откройте в браузере адрес `http://localhost:<port>`, который покажет `npm run preview`.
 
-## Expanding the ESLint configuration
+### Выкладка на прод
+1. Соберите статику: `npm run build` → папка `dist/`.
+2. Залейте содержимое `dist/` на любой статику/облако (S3/CloudFront, Firebase Hosting, Vercel Static Export, GitHub Pages и т.д.).
+3. В `vite.config.js` включён `base: "./"`, поэтому бандл корректно работает из подкаталога (актуально для Telegram WebApp, когда файлы лежат не в корне домена).
+4. В панели Telegram Mini App пропишите публичный URL `index.html` из `dist/`.
+5. После публикации прогоните быструю проверку: пролог стартует с движения детектива, после выполнения задания шефа начинается сцена 1; повторный визит пропускает пролог и открывает сохранённый прогресс.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Что проверить при превью
+- **Свежий запуск:** очистите localStorage или нажмите «Reset» в фарме, чтобы вступительный уровень начался с нуля.
+- **Повторный визит:** если пролог уже пройден, приложение сразу откроет основную историю/фарм.
+- **Веб-версия в Telegram:** при встраивании убедитесь, что `window.Telegram.WebApp.initData` есть; в `src/main.jsx` уже вызываются `expand()` и `ready()` для корректного UI внутри клиента.
+
+## Чем я могу помочь дальше
+- Дописать/расширить сюжет, сделать новые сцены и ветки.
+- Баланс апгрейдов и экономики фарма.
+- Улучшение UI под Telegram (темы, кнопка Back/Main, haptics).
+- Чек-листы перед релизом мини-приложения.
