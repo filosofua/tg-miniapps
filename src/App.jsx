@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import SceneRenderer from "./components/SceneRenderer";
 import ClickerFarm from "./ClickerFarm";
+import IntroScene from "./components/IntroScene";
 
 import scene1 from "./scenes/scene1.js";
 import scene2 from "./scenes/scene2.js";
@@ -21,16 +22,9 @@ const scenesById = {
 
 const STORAGE_KEY = "ashwood_game_state";
 
-function loadInitialState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      return JSON.parse(raw);
-    }
-  } catch (e) {
-    console.error(e);
-  }
+function getDefaultState() {
   return {
+    introCompleted: false,
     mode: "story", // 'story' | 'farm'
     sceneId: 1,
     player: {
@@ -42,10 +36,35 @@ function loadInitialState() {
   };
 }
 
+function loadInitialState() {
+  const fallbackState = getDefaultState();
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+
+      return {
+        ...fallbackState,
+        ...parsed,
+        introCompleted: parsed.introCompleted ?? true,
+        player: {
+          ...fallbackState.player,
+          ...(parsed.player || {})
+        }
+      };
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  return fallbackState;
+}
+
 export default function App() {
   const [state, setState] = useState(loadInitialState);
 
-  const { mode, sceneId, player, finished } = state;
+  const { introCompleted, mode, sceneId, player, finished } = state;
 
   // сохраняем игру
   useEffect(() => {
@@ -91,17 +110,24 @@ export default function App() {
   }
 
   function resetStory() {
-    setState((prev) => ({
-      ...prev,
-      mode: "story",
-      sceneId: 1,
-      player: {
-        fear: 0,
-        investigation: 0,
-        inventory: []
-      },
-      finished: false
-    }));
+    setState(getDefaultState());
+  }
+
+  if (!introCompleted) {
+    return (
+      <IntroScene
+        onComplete={() =>
+          setState((prev) => ({
+            ...prev,
+            introCompleted: true,
+            mode: "story",
+            sceneId: 1,
+            finished: false,
+            player: prev.player || getDefaultState().player
+          }))
+        }
+      />
+    );
   }
 
   if (mode === "farm") {
@@ -112,14 +138,7 @@ export default function App() {
 
   if (!sceneData) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#020617",
-          color: "#e5e7eb",
-          padding: 20
-        }}
-      >
+      <div className="app-shell">
         <h2>Сцена не найдена</h2>
         <p>sceneId: {sceneId}</p>
         <button onClick={resetStory}>Сбросить историю</button>
@@ -128,35 +147,14 @@ export default function App() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#020617",
-        color: "#e5e7eb",
-        padding: 20,
-        fontFamily:
-          "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-      }}
-    >
+    <div className="app-shell">
       <SceneRenderer
         sceneData={sceneData}
         updatePlayer={updatePlayer}
         onNextScene={handleNextScene}
       />
 
-      <div
-        style={{
-          position: "fixed",
-          bottom: 12,
-          right: 12,
-          fontSize: 12,
-          opacity: 0.7,
-          background: "#020617",
-          borderRadius: 8,
-          padding: "4px 8px",
-          border: "1px solid #1e293b"
-        }}
-      >
+      <div className="status-pill">
         Страх: {player.fear} | Расследование: {player.investigation}
         {finished && " | История завершена"}
       </div>
