@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:nobinary": "node scripts/checkNoBinary.js",
+    "verify": "npm run check:nobinary && npm run build"
   },
   "dependencies": {
     "react": "^19.2.0",

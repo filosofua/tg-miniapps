@@ -1,16 +1,100 @@
-# React + Vite
+# Ashwood, Oregon · 1976 — Telegram Mini App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Детективный комикс-квест с мини-игрой-кликером, реферальной ссылкой и локальной NFT-генерацией.
 
-Currently, two official plugins are available:
+## Особенности
+- 🎭 Создание своего детектива (имя, архетип, настроение) + локальный NFT персонажа.
+- 🗃 6 сцен комикса с выбором, влияющим на Fear / Investigation / Moral, инвентарь и финал.
+- 🌆 Атмосфера нуара 70-х: туман, холмы, зернистые текстуры, чёрные рамки, крупные подписи.
+- 🖼 Плейсхолдер-арт под ретро-комикс (чистый SVG data-uri, без бинарных файлов), готовый к замене на реальные ассеты.
+- 🪙 Farm-mode после сюжета: кликер, апгрейды, локальный лидерборд друзей и referrals.
+- 🧾 NFT финала (common/rare/legendary) на основе характеристик игрока, хранится локально в JSON.
+- 🚫 В репозитории нет бинарных ассетов (png/jpg/ttf/woff/eot); проверка командой `npm run check:nobinary`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Структура проекта
+```
+src/
+  App.jsx
+  main.jsx
+  styles.css
+  scenes/scene1.js ... scene6.js
+  components/
+    SceneRenderer.jsx
+    DialogueBox.jsx
+    ChoiceButtons.jsx
+    CharacterCreate.jsx
+    Leaderboard.jsx
+    IntroScene.jsx
+  engine/
+    stateManager.js
+    nftGenerator.js
+  farm/
+    FarmEngine.jsx
+    FarmUI.jsx
+  assets/
+    images/index.js (SVG data-uri пейзажи; нет бинарных файлов; дефолтный vite.svg удалён из public)
+    avatars/generated/.gitkeep
+```
 
-## React Compiler
+Папка `public/` не содержит сцен или ассетов — вся логика и плейсхолдеры находятся в `src`, чтобы выкладка не требовала бинарников.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Системные сущности
+`gameState` хранится в `localStorage`:
+```
+{
+  player: { name, fear, investigation, moral, inventory[] },
+  sceneId,
+  introDone,
+  nftCharacter,
+  nftFinal,
+  farmCoins,
+  upgrades,
+  referrals,
+  leaderboard,
+  startSignature
+}
+```
 
-## Expanding the ESLint configuration
+## Сцены
+- **Intro** — движение детектива к участку, короткий вызов шефа.
+- **scene1**: Полицейский участок, первое задание.
+- **scene2**: Дом Харперов, диалог с родителями.
+- **scene3**: Заправка, свидетели и номер пикапа.
+- **scene4**: Заброшенный завод, исследование периметра.
+- **scene5**: Цех и туман, встреча с монстром/Томми.
+- **scene6**: Финал и отчёт для шефа, расчёт NFT финала, переход в Farm-mode.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## NFT генератор
+- `generateCharacterNFT(name, archetype, vibe, seed)` — SVG data-uri + JSON метаданные персонажа.
+- `generateFinalNFT(player, label)` — итоговый токен с тремя рарностями: `common`, `rare`, `legendary`.
+
+## Фарм-кликер
+- Кнопка клика (с учётом `clickMultiplier`).
+- Пассивный доход (`passiveIncome`) и авто-клик (`autoClickRate`) раз в секунду.
+- Апгрейды покупаются за монеты, прогресс хранится.
+
+## Рефералы и лидерборд
+- При запуске через `/start <refId>` сохраняется реферал и отображается счётчик инвайтов.
+- Лидерборд локальный: сортировка по Investigation, далее по времени прохождения.
+
+## Запуск
+```
+npm install
+npm run dev       # dev-режим
+npm run build     # прод-сборка
+npm run preview   # предпросмотр прод-сборки
+npm run check:nobinary # убедиться, что в репозитории нет бинарников (png/jpg/ttf и т.п.)
+npm run verify    # check:nobinary + build, чтобы убедиться, что нет бинарников и сборка проходит
+```
+Открой `/dist` на любом статикахостинге или подключи к Telegram Mini App с `base` по умолчанию `/`.
+
+## Деплой
+- Vercel / Netlify / любой статики (папка `dist`).
+- Для Telegram Mini Apps убедись, что включены `https`, подключён `index.html`, а старт-параметры доступны через `initData`.
+
+## Чем заменить плейсхолдер-арт
+Плейсхолдеры генерируются в `src/assets/images/index.js` как inline SVG data-uri, чтобы не хранить бинарники. Если нужны свои картинки,
+поменяй содержимое генераторов или подключи внешние URL/WebP/SVG.
+
+Для удобства в `src/assets/images/prompts.md` есть краткие текстовые подсказки по каждому бэкграунду и аватару, чтобы можно было быстро
+сгенерировать новые ассеты в том же стиле (или подключить уже готовые SVG/внешние ссылки) без добавления бинарных файлов в репозиторий.
