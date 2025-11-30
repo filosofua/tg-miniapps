@@ -24,7 +24,9 @@ const STORAGE_KEY = "ashwood_game_state";
 const INIT_DATA_KEY = "ashwood_last_init_data";
 
 function getStartContext() {
-  if (typeof window === "undefined") return { startParam: null, initDataRaw: null };
+  if (typeof window === "undefined") {
+    return { startParam: null, initDataRaw: null, hasStartFlag: false };
+  }
 
   const params = new URLSearchParams(window.location.search);
   const urlStartParam =
@@ -32,9 +34,16 @@ function getStartContext() {
 
   const webApp = window.Telegram?.WebApp;
 
+  const hasStartFlag =
+    params.has("tgWebAppStartParam") ||
+    params.has("start_param") ||
+    params.has("start") ||
+    (webApp?.initDataUnsafe && "start_param" in webApp.initDataUnsafe);
+
   return {
     startParam: webApp?.initDataUnsafe?.start_param || urlStartParam,
-    initDataRaw: webApp?.initData || params.get("tgWebAppData")
+    initDataRaw: webApp?.initData || params.get("tgWebAppData"),
+    hasStartFlag
   };
 }
 
@@ -54,7 +63,7 @@ function getDefaultState() {
 
 function loadInitialState() {
   const fallbackState = getDefaultState();
-  const { startParam, initDataRaw } = getStartContext();
+  const { startParam, initDataRaw, hasStartFlag } = getStartContext();
 
   let storedInitData = null;
 
@@ -64,9 +73,10 @@ function loadInitialState() {
     console.error(e);
   }
 
+  const normalizedStartParam = typeof startParam === "string" ? startParam.trim().toLowerCase() : "";
+
   const shouldResetByStartParam =
-    typeof startParam === "string" &&
-    ["restart", "reset", "start", "intro", "new"].includes(startParam.toLowerCase());
+    normalizedStartParam === "" ? hasStartFlag : ["restart", "reset", "start", "intro", "new"].includes(normalizedStartParam);
 
   const initDataChanged =
     typeof initDataRaw === "string" && storedInitData && storedInitData !== initDataRaw;
