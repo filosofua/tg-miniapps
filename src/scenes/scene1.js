@@ -22,12 +22,16 @@ const scene1 = {
           label: "Спокойно: «Я найду его»",
           fear: -1,
           investigation: 1,
+          minPoints: 3,
+          maxPoints: 7,
           next: 3
         },
         {
           label: "Жёстко: «Почему вы сами не ищете?»",
           fear: 1,
           investigation: 0,
+          minPoints: 1,
+          maxPoints: 4,
           next: 3
         }
       ]
@@ -53,10 +57,14 @@ const scene1 = {
       options: [
         {
           label: "К заправке",
+          minPoints: 2,
+          maxPoints: 5,
           nextScene: 2
         },
         {
           label: "В дом семьи Харпер",
+          minPoints: 2,
+          maxPoints: 6,
           nextScene: 3
         }
       ]

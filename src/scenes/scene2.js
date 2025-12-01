@@ -27,12 +27,16 @@ const scene2 = {
           label: "Вежливо: 'Я детектив, расследую пропажу мальчика.'",
           fear: -1,
           investigation: 1,
+          minPoints: 3,
+          maxPoints: 7,
           next: 4
         },
         {
           label: "Жёстко: 'Открой дверь, у меня вопросы.'",
           fear: 1,
           investigation: 0,
+          minPoints: 1,
+          maxPoints: 4,
           next: 4
         }
       ]
@@ -54,11 +58,15 @@ const scene2 = {
         {
           label: "Спросить о друзьях Дэнни",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 7
         },
         {
           label: "Спросить о лесной дороге",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 8
         }
       ]
@@ -89,10 +97,14 @@ const scene2 = {
       options: [
         {
           label: "Вернуться в участок и обдумать услышанное",
+          minPoints: 2,
+          maxPoints: 5,
           nextScene: 1
         },
         {
           label: "Ехать к дому Харперов",
+          minPoints: 2,
+          maxPoints: 5,
           nextScene: 3
         }
       ]

@@ -3,6 +3,11 @@ import "./App.css";
 import SceneRenderer from "./components/SceneRenderer";
 import ClickerFarm from "./ClickerFarm";
 import IntroScene from "./components/IntroScene";
+import CharacterCreate from "./components/CharacterCreate";
+import WorldScene from "./world/WorldScene";
+import endingNftPool from "./nft/endingNftPool.json";
+import { pickRandomNft } from "./nft/nftGenerator";
+import { WORLD_ZONES, getZoneIndexByScene } from "./world/zones";
 
 import scene1 from "./scenes/scene1.js";
 import scene2 from "./scenes/scene2.js";
@@ -24,15 +29,24 @@ const STORAGE_KEY = "ashwood_game_state";
 
 function getDefaultState() {
   return {
+    created: false,
     introCompleted: false,
-    mode: "story", // 'story' | 'farm'
+    mode: "world", // 'world' | 'scene' | 'farm'
     sceneId: 1,
+    worldLocation: 0,
+    unlockedScenes: [1],
+    completedScenes: [],
     player: {
+      name: "",
+      persona: "calm",
+      nftCharacter: null,
+      points: 0,
       fear: 0,
       investigation: 0,
       inventory: []
     },
-    finished: false
+    finished: false,
+    finalNft: null
   };
 }
 
@@ -51,7 +65,18 @@ function loadInitialState() {
         player: {
           ...fallbackState.player,
           ...(parsed.player || {})
-        }
+        },
+        created: parsed.created ?? Boolean(parsed?.player?.name),
+        unlockedScenes:
+          parsed.unlockedScenes && parsed.unlockedScenes.length
+            ? parsed.unlockedScenes
+            : fallbackState.unlockedScenes,
+        completedScenes: parsed.completedScenes || fallbackState.completedScenes,
+        worldLocation: parsed.worldLocation ?? fallbackState.worldLocation,
+        mode:
+          parsed.mode && ["world", "scene", "farm"].includes(parsed.mode)
+            ? parsed.mode
+            : fallbackState.mode
       };
     }
   } catch (e) {
@@ -64,7 +89,17 @@ function loadInitialState() {
 export default function App() {
   const [state, setState] = useState(loadInitialState);
 
-  const { introCompleted, mode, sceneId, player, finished } = state;
+  const {
+    created,
+    introCompleted,
+    mode,
+    sceneId,
+    player,
+    finished,
+    unlockedScenes,
+    completedScenes,
+    worldLocation
+  } = state;
 
   // сохраняем игру
   useEffect(() => {
@@ -92,25 +127,69 @@ export default function App() {
     });
   }
 
-  function handleNextScene(nextSceneId) {
-    // 0 = сюжет пройден → включаем фарм
-    if (nextSceneId === 0) {
-      setState((prev) => ({
-        ...prev,
-        mode: "farm",
-        finished: true
-      }));
-      return;
-    }
-
+  function handleCharacterCreated(payload) {
     setState((prev) => ({
       ...prev,
-      sceneId: nextSceneId
+      created: true,
+      introCompleted: false,
+      mode: "world",
+      sceneId: 1,
+      unlockedScenes: [1],
+      completedScenes: [],
+      worldLocation: getZoneIndexByScene(1),
+      finished: false,
+      player: {
+        ...prev.player,
+        ...payload,
+        fear: 0,
+        investigation: 0,
+        points: 0,
+        inventory: []
+      },
+      finalNft: null
     }));
   }
 
+  function handleNextScene(nextSceneId) {
+    setState((prev) => {
+      const prevSceneId = prev.sceneId;
+      const updatedCompleted = prevSceneId
+        ? Array.from(new Set([...(prev.completedScenes || []), prevSceneId]))
+        : prev.completedScenes || [];
+
+      // 0 = сюжет пройден → включаем фарм
+      if (nextSceneId === 0) {
+        return {
+          ...prev,
+          mode: "farm",
+          finished: true,
+          completedScenes: updatedCompleted,
+          finalNft: prev.finalNft || pickRandomNft(endingNftPool)
+        };
+      }
+
+      const updatedUnlocked = Array.from(
+        new Set([...(prev.unlockedScenes || []), nextSceneId])
+      );
+
+      return {
+        ...prev,
+        mode: "world",
+        sceneId: nextSceneId,
+        worldLocation: getZoneIndexByScene(nextSceneId),
+        unlockedScenes: updatedUnlocked,
+        completedScenes: updatedCompleted
+      };
+    });
+  }
+
   function resetStory() {
+    localStorage.removeItem("ashwood_farm_state");
     setState(getDefaultState());
+  }
+
+  if (!created) {
+    return <CharacterCreate onComplete={handleCharacterCreated} />;
   }
 
   if (!introCompleted) {
@@ -120,8 +199,9 @@ export default function App() {
           setState((prev) => ({
             ...prev,
             introCompleted: true,
-            mode: "story",
+            mode: "world",
             sceneId: 1,
+            worldLocation: getZoneIndexByScene(1),
             finished: false,
             player: prev.player || getDefaultState().player
           }))
@@ -130,8 +210,43 @@ export default function App() {
     );
   }
 
+  if (mode === "world") {
+    return (
+      <WorldScene
+        zones={WORLD_ZONES}
+        unlockedScenes={unlockedScenes}
+        completedScenes={completedScenes}
+        position={worldLocation}
+        onMove={(next) =>
+          setState((prev) => ({
+            ...prev,
+            worldLocation: Math.max(0, Math.min(WORLD_ZONES.length - 1, next))
+          }))
+        }
+        onEnterScene={(sceneIdToEnter) =>
+          setState((prev) => ({
+            ...prev,
+            mode: "scene",
+            sceneId: sceneIdToEnter
+          }))
+        }
+        nextSceneId={sceneId}
+        player={player}
+        onResetStory={resetStory}
+      />
+    );
+  }
+
   if (mode === "farm") {
-    return <ClickerFarm onResetStory={resetStory} />;
+    return (
+      <ClickerFarm
+        playerName={player.name}
+        starterNft={player.nftCharacter}
+        finalNft={state.finalNft}
+        initialCoins={player.points}
+        onResetStory={resetStory}
+      />
+    );
   }
 
   const sceneData = scenesById[sceneId];
@@ -152,11 +267,20 @@ export default function App() {
         sceneData={sceneData}
         updatePlayer={updatePlayer}
         onNextScene={handleNextScene}
+        player={player}
       />
 
       <div className="status-pill">
-        Страх: {player.fear} | Расследование: {player.investigation}
-        {finished && " | История завершена"}
+        <div className="status-pill__line">{player.name || "Детектив"}</div>
+        {player.nftCharacter && (
+          <div className="status-pill__line">
+            NFT: {player.nftCharacter.name} ({player.nftCharacter.rarity})
+          </div>
+        )}
+        <div className="status-pill__line">
+          Очки: {player.points} | Страх: {player.fear} | Расследование: {player.investigation}
+          {finished && " | История завершена"}
+        </div>
       </div>
     </div>
   );
