@@ -267,6 +267,7 @@ export default function App() {
         sceneData={sceneData}
         updatePlayer={updatePlayer}
         onNextScene={handleNextScene}
+        player={player}
       />
 
       <div className="status-pill">
