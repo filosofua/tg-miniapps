@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function getRandomPoints(option) {
   if (
@@ -18,6 +18,11 @@ export default function SceneRenderer({ sceneData, onNextScene, updatePlayer }) 
   const step = sceneData.steps[stepIndex];
 
   const hasChoice = useMemo(() => step.type === "choice", [step]);
+
+  useEffect(() => {
+    setStepIndex(0);
+    setLastPoints(null);
+  }, [sceneData]);
 
   function next(optionIndex = null) {
     // если это выбор

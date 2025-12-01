@@ -1,12 +1,22 @@
 // src/ClickerFarm.jsx
 import { useEffect, useMemo, useState } from "react";
 
+function generateRefId() {
+  return Math.random().toString(36).slice(2, 8);
+}
+
 function buildInitialFarmState(initialCoins) {
   return {
     coins: Math.max(initialCoins || 0, 0),
     level: 1,
     incomePerTick: 1, // сколько монет в секунду капает
-    clickBonus: 1
+    clickBonus: 1,
+    referrals: {
+      myRefId: generateRefId(),
+      referredBy: "",
+      referredFriends: []
+    },
+    leaderboard: []
   };
 }
 
@@ -53,6 +63,51 @@ export default function ClickerFarm({
       console.error(e);
     }
   }, [state]);
+
+  // обновляем лидерборд локально
+  useEffect(() => {
+    setState((prev) => {
+      const leaderboardWithoutPlayer = (prev.leaderboard || []).filter(
+        (entry) => entry.name !== (playerName || "Детектив")
+      );
+
+      const updated = [
+        ...leaderboardWithoutPlayer,
+        {
+          name: playerName || "Детектив",
+          coins: prev.coins,
+          points: initialCoins
+        }
+      ].sort((a, b) => b.coins - a.coins);
+
+      return { ...prev, leaderboard: updated };
+    });
+  }, [playerName, state.coins, initialCoins]);
+
+  function handleAddReferral(name) {
+    if (!name.trim()) return;
+    setState((prev) => {
+      const unique = new Set(prev.referrals?.referredFriends || []);
+      unique.add(name.trim());
+      return {
+        ...prev,
+        referrals: {
+          ...prev.referrals,
+          referredFriends: Array.from(unique)
+        }
+      };
+    });
+  }
+
+  function handleSetReferredBy(code) {
+    setState((prev) => ({
+      ...prev,
+      referrals: {
+        ...prev.referrals,
+        referredBy: code
+      }
+    }));
+  }
 
   const canUpgradeIncome = state.coins >= 50;
   const canUpgradeClick = state.coins >= 30;
@@ -174,6 +229,97 @@ export default function ClickerFarm({
 
       <div style={{ fontSize: 12, opacity: 0.7, marginTop: 16 }}>
         В будущем здесь можно будет подвязать NFT / токен и вывод наград.
+      </div>
+
+      <div
+        style={{
+          marginTop: 16,
+          padding: 16,
+          borderRadius: 12,
+          border: "1px solid #1e293b",
+          background: "rgba(15,23,42,0.85)"
+        }}
+      >
+        <h3 style={{ margin: "0 0 10px" }}>Реферальная система</h3>
+        <p style={{ margin: "0 0 6px", fontSize: 13 }}>
+          Твоя ссылка: <b>t.me/ashwood_bot?start={state.referrals.myRefId}</b>
+        </p>
+        <label style={{ display: "block", marginBottom: 10, fontSize: 13 }}>
+          Пригласивший тебя (start-код):
+          <input
+            type="text"
+            placeholder="например, 4fj9sa"
+            value={state.referrals.referredBy}
+            onChange={(e) => handleSetReferredBy(e.target.value)}
+            style={{ width: "100%", marginTop: 6 }}
+          />
+        </label>
+
+        <label style={{ display: "block", marginBottom: 8, fontSize: 13 }}>
+          Добавить приглашённого друга:
+          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+            <input
+              type="text"
+              placeholder="Имя друга"
+              id="refNameInput"
+              style={{ flex: 1 }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.getElementById("refNameInput");
+                if (input) {
+                  handleAddReferral(input.value);
+                  input.value = "";
+                }
+              }}
+            >
+              Добавить
+            </button>
+          </div>
+        </label>
+
+        <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 0 }}>
+          Друзья: {state.referrals.referredFriends.join(", ") || "пока никого"}
+        </p>
+      </div>
+
+      <div
+        style={{
+          marginTop: 16,
+          padding: 16,
+          borderRadius: 12,
+          border: "1px solid #1e293b",
+          background: "rgba(15,23,42,0.85)"
+        }}
+      >
+        <h3 style={{ margin: "0 0 10px" }}>Локальный лидерборд</h3>
+        <p style={{ fontSize: 12, opacity: 0.7, marginTop: 0 }}>
+          Сортировка по монетам фарма. Очки сюжета фиксируются при входе в фарм.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {state.leaderboard.map((entry, idx) => (
+            <div
+              key={entry.name + idx}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "8px 10px",
+                borderRadius: 10,
+                background: "rgba(51,65,85,0.3)",
+                border: "1px solid #1f2937"
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 700 }}>{entry.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.7 }}>
+                  Очки сюжета: {entry.points}
+                </div>
+              </div>
+              <div style={{ fontWeight: 700 }}>{entry.coins}💰</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <button
