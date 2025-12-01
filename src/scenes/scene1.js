@@ -53,19 +53,19 @@ const scene1 = {
     },
     {
       type: "choice",
-      text: "Куда направишься?",
+      text: "Первый след ведёт к заправке. Как выезжаешь?",
       options: [
         {
-          label: "К заправке",
+          label: "Спокойно, отметив на карте дом Харперов на потом",
           minPoints: 2,
           maxPoints: 5,
           nextScene: 2
         },
         {
-          label: "В дом семьи Харпер",
+          label: "Срочно, пока Билл Хиггс не ушёл домой",
           minPoints: 2,
           maxPoints: 6,
-          nextScene: 3
+          nextScene: 2
         }
       ]
     }

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 const STEP = 1;
+const PARALLAX_LAYERS = [
+  { src: "/assets/valiant/parallax-sky.svg", depth: 0.12, opacity: 0.9 },
+  { src: "/assets/valiant/parallax-woods.svg", depth: 0.24, opacity: 0.9 }
+];
 
 export default function WorldScene({
   zones,
@@ -18,10 +22,27 @@ export default function WorldScene({
   const clampedPosition = Math.max(0, Math.min(zones.length - 1, position || 0));
   const currentZone = zones[clampedPosition];
   const [scoutMessage, setScoutMessage] = useState(null);
+  const [touchStartX, setTouchStartX] = useState(null);
 
   useEffect(() => {
     setScoutMessage(null);
   }, [currentZone.id]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        onMove(clampedPosition - STEP);
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        onMove(clampedPosition + STEP);
+      }
+    }
+
+    window.addEventListener("keydown", onKey, { passive: false });
+    return () => window.removeEventListener("keydown", onKey);
+  }, [clampedPosition, onMove]);
 
   const isUnlocked = useMemo(() => {
     return unlockedScenes?.includes(currentZone.sceneId);
@@ -34,8 +55,35 @@ export default function WorldScene({
 
   const scouted = zoneFindings?.[currentZone.id];
 
+  const progress = zones.length > 1 ? clampedPosition / (zones.length - 1) : 0;
+
   return (
-    <div className="world">
+    <div
+      className="world"
+      onTouchStart={(e) => setTouchStartX(e.touches?.[0]?.clientX || null)}
+      onTouchEnd={(e) => {
+        if (touchStartX === null) return;
+        const delta = (e.changedTouches?.[0]?.clientX || 0) - touchStartX;
+        if (Math.abs(delta) > 40) {
+          onMove(clampedPosition + (delta > 0 ? -STEP : STEP));
+        }
+        setTouchStartX(null);
+      }}
+    >
+      <div className="world__parallax">
+        {PARALLAX_LAYERS.map((layer, idx) => (
+          <div
+            key={layer.src}
+            className="world__parallax-layer"
+            style={{
+              backgroundImage: `url(${layer.src})`,
+              opacity: layer.opacity,
+              transform: `translateX(${(0.5 - progress) * layer.depth * 120}%)`
+            }}
+            aria-hidden
+          />
+        ))}
+      </div>
       <div className="world__backdrop" style={{ backgroundImage: `url(${currentZone.backdrop})` }} />
       <div className="world__grain" aria-hidden />
       <header className="world__header">
@@ -43,8 +91,9 @@ export default function WorldScene({
           <p className="world__eyebrow">Город Ашвуд • 1976</p>
           <h1 className="world__title">Передвижение по городу</h1>
           <p className="world__lead">
-            Используй стрелки, чтобы добраться до локаций. Нажми «Войти», чтобы
-            открыть сюжетную сцену. Уровни открываются по мере прохождения.
+            Используй стрелки, свайпы или кнопки, чтобы двигаться по улице и
+            добираться до локаций. Нажми «Войти», чтобы открыть сюжетную сцену.
+            Узлы открываются строго по сюжету, как в Valiant Hearts.
           </p>
         </div>
         <div className="world__status">
@@ -55,6 +104,7 @@ export default function WorldScene({
       </header>
 
       <div className="world__track">
+        <div className="world__path" aria-hidden />
         {zones.map((zone, idx) => {
           const unlocked = unlockedScenes?.includes(zone.sceneId);
           const done = completedScenes?.includes(zone.sceneId);

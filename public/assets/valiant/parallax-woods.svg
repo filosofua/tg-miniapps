@@ -1,0 +1,25 @@
+<svg width="1440" height="810" viewBox="0 0 1440 810" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="810" fill="transparent"/>
+  <g fill="#0d1329" opacity="0.8">
+    <path d="M-40 620 L120 420 L180 620 Z"/>
+    <path d="M140 640 L260 380 L340 640 Z"/>
+    <path d="M320 610 L420 360 L500 610 Z"/>
+    <path d="M520 630 L640 380 L720 630 Z"/>
+    <path d="M720 600 L820 360 L900 600 Z"/>
+    <path d="M900 640 L1020 390 L1100 640 Z"/>
+    <path d="M1100 610 L1200 360 L1300 610 Z"/>
+    <path d="M1260 640 L1360 400 L1480 640 Z"/>
+  </g>
+  <g fill="#0f172a" opacity="0.55">
+    <rect x="-20" y="640" width="380" height="180" rx="16" />
+    <rect x="300" y="650" width="440" height="170" rx="16" />
+    <rect x="760" y="630" width="360" height="180" rx="16" />
+    <rect x="1080" y="650" width="340" height="170" rx="16" />
+  </g>
+  <g stroke="#1f2a44" stroke-width="6" stroke-linecap="round" opacity="0.35">
+    <line x1="160" y1="620" x2="160" y2="450" />
+    <line x1="520" y1="640" x2="520" y2="430" />
+    <line x1="880" y1="620" x2="880" y2="430" />
+    <line x1="1180" y1="640" x2="1180" y2="440" />
+  </g>
+</svg>

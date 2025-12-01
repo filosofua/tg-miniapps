@@ -26,6 +26,7 @@ const scenesById = {
 };
 
 const STORAGE_KEY = "ashwood_game_state";
+const LINEAR_SCENES = WORLD_ZONES.map((z) => z.sceneId);
 
 function getDefaultState() {
   return {
@@ -86,6 +87,14 @@ function loadInitialState() {
   }
 
   return fallbackState;
+}
+
+function getLinearNext(currentId) {
+  if (currentId === 0) return 0;
+  const idx = LINEAR_SCENES.indexOf(currentId);
+  if (idx === -1) return LINEAR_SCENES[0] || 0;
+  if (idx >= LINEAR_SCENES.length - 1) return 0;
+  return LINEAR_SCENES[idx + 1];
 }
 
 export default function App() {
@@ -156,12 +165,14 @@ export default function App() {
   function handleNextScene(nextSceneId) {
     setState((prev) => {
       const prevSceneId = prev.sceneId;
+      const resolvedNext =
+        typeof nextSceneId === "number" ? nextSceneId : getLinearNext(prevSceneId);
+
       const updatedCompleted = prevSceneId
         ? Array.from(new Set([...(prev.completedScenes || []), prevSceneId]))
         : prev.completedScenes || [];
 
-      // 0 = сюжет пройден → включаем фарм
-      if (nextSceneId === 0) {
+      if (resolvedNext === 0) {
         return {
           ...prev,
           mode: "farm",
@@ -172,14 +183,14 @@ export default function App() {
       }
 
       const updatedUnlocked = Array.from(
-        new Set([...(prev.unlockedScenes || []), nextSceneId])
+        new Set([...(prev.unlockedScenes || []), resolvedNext])
       );
 
       return {
         ...prev,
         mode: "world",
-        sceneId: nextSceneId,
-        worldLocation: getZoneIndexByScene(nextSceneId),
+        sceneId: resolvedNext,
+        worldLocation: getZoneIndexByScene(resolvedNext),
         unlockedScenes: updatedUnlocked,
         completedScenes: updatedCompleted
       };
