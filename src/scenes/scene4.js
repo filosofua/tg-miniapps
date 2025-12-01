@@ -105,10 +105,10 @@ const scene4 = {
           nextScene: 5
         },
         {
-          label: "Ещё раз проверить заправку и расспросить Билла о прошлом завода",
+          label: "Связаться с рабочими завода и выехать туда сразу",
           minPoints: 2,
           maxPoints: 6,
-          nextScene: 2
+          nextScene: 5
         }
       ]
     }

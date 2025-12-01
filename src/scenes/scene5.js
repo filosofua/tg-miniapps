@@ -125,10 +125,10 @@ const scene5 = {
           nextScene: 6
         },
         {
-          label: "Отступить и вернуться в участок с тем, что уже знаешь",
+          label: "Связаться с шерифом и войти в лабораторный блок вместе",
           minPoints: 2,
           maxPoints: 6,
-          nextScene: 4
+          nextScene: 6
         }
       ]
     }

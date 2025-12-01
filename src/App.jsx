@@ -267,11 +267,18 @@ export default function App() {
           return reward;
         }}
         onEnterScene={(sceneIdToEnter) =>
-          setState((prev) => ({
-            ...prev,
-            mode: "scene",
-            sceneId: sceneIdToEnter
-          }))
+          setState((prev) => {
+            const alreadyDone = prev.completedScenes?.includes(sceneIdToEnter);
+            const wrongTarget = sceneIdToEnter !== prev.sceneId;
+
+            if (alreadyDone || wrongTarget) return prev;
+
+            return {
+              ...prev,
+              mode: "scene",
+              sceneId: sceneIdToEnter
+            };
+          })
         }
         nextSceneId={sceneId}
         player={player}

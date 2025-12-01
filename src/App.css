@@ -1,7 +1,36 @@
+html,
+body {
+  margin: 0;
+  background: #020617;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select,
+.scene__option,
+.world__cta,
+.world__scout-btn,
+.scene__cta {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 #root {
   max-width: 1024px;
   margin: 0 auto;
   padding: 16px;
+  width: 100%;
 }
 
 .app-shell {
@@ -1264,6 +1293,54 @@
   }
 
   .farm__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  #root {
+    padding: 10px;
+  }
+
+  .app-shell,
+  .world,
+  .scene,
+  .intro-screen {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .world__header,
+  .scene__hud {
+    flex-direction: column;
+  }
+
+  .world__title,
+  .scene__title,
+  .farm__title {
+    font-size: 22px;
+  }
+
+  .world__track {
+    height: 140px;
+  }
+
+  .world__panel,
+  .scene__stage,
+  .farm__hero-panel {
+    padding: 12px;
+  }
+
+  .scene__bubble {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .scene__meta {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .scene__options {
     grid-template-columns: 1fr;
   }
 }

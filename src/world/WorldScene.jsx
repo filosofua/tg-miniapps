@@ -27,9 +27,10 @@ export default function WorldScene({
     return unlockedScenes?.includes(currentZone.sceneId);
   }, [currentZone.sceneId, unlockedScenes]);
 
-  const completedLabel = completedScenes?.includes(currentZone.sceneId)
-    ? "(пройдено)"
-    : "";
+  const zoneCompleted = completedScenes?.includes(currentZone.sceneId);
+  const completedLabel = zoneCompleted ? "(пройдено)" : "";
+  const isCurrentTarget = nextSceneId === currentZone.sceneId;
+  const canEnter = isUnlocked && !zoneCompleted && isCurrentTarget;
 
   const scouted = zoneFindings?.[currentZone.id];
 
@@ -125,8 +126,11 @@ export default function WorldScene({
             ◀ Влево
           </button>
           <div className="world__controls-meta">
-            {isUnlocked ? "Можно войти" : "Пока закрыто"}
-            {nextSceneId === currentZone.sceneId && " • Следующая цель"}
+            {zoneCompleted && "Сцена пройдена"}
+            {!zoneCompleted && !isUnlocked && "Пока закрыто"}
+            {!zoneCompleted && isUnlocked && !isCurrentTarget && "Открой новую цель"}
+            {canEnter && "Можно войти"}
+            {isCurrentTarget && " • Следующая цель"}
           </div>
           <button
             onClick={() => onMove(clampedPosition + STEP)}
@@ -138,10 +142,10 @@ export default function WorldScene({
 
         <button
           className="world__cta"
-          disabled={!isUnlocked}
+          disabled={!canEnter}
           onClick={() => onEnterScene(currentZone.sceneId)}
         >
-          Войти в сцену
+          {zoneCompleted ? "Сцена уже пройдена" : "Войти в сцену"}
         </button>
 
         <div className="world__meta-row">

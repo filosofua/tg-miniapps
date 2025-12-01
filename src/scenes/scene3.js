@@ -124,13 +124,13 @@ const scene3 = {
           label: "Вернуться в участок и составить хронологию событий",
           minPoints: 2,
           maxPoints: 5,
-          nextScene: 1
+          nextScene: 4
         },
         {
-          label: "Заехать на заправку ещё раз — поговорить с Биллом о заводе",
+          label: "Двигаться к заброшенному заводу по найденной схеме",
           minPoints: 2,
           maxPoints: 5,
-          nextScene: 2
+          nextScene: 5
         }
       ]
     }

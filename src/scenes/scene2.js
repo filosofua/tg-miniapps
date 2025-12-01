@@ -99,7 +99,7 @@ const scene2 = {
           label: "Вернуться в участок и обдумать услышанное",
           minPoints: 2,
           maxPoints: 5,
-          nextScene: 1
+          nextScene: 4
         },
         {
           label: "Ехать к дому Харперов",
