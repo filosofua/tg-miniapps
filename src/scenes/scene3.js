@@ -22,12 +22,16 @@ const scene3 = {
           label: "Спокойно расспросить о последнем дне Дэнни",
           fear: -1,
           investigation: 1,
+          minPoints: 3,
+          maxPoints: 7,
           next: 3
         },
         {
           label: "Сразу спросить о его друзьях и проблемах",
           fear: 0,
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 3
         }
       ]
@@ -54,11 +58,15 @@ const scene3 = {
         {
           label: "Осмотреть рабочий стол и тетради",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 7
         },
         {
           label: "Посмотреть у окна и под подоконником",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 8
         }
       ]
@@ -85,11 +93,15 @@ const scene3 = {
         {
           label: "Холодок по спине, но пытаешься сохранить спокойствие",
           fear: 1,
+          minPoints: 1,
+          maxPoints: 5,
           next: 11
         },
         {
           label: "Отводишь взгляд и делаешь вид, что ничего не заметил",
           fear: 2,
+          minPoints: 1,
+          maxPoints: 4,
           next: 11
         }
       ]
@@ -110,10 +122,14 @@ const scene3 = {
       options: [
         {
           label: "Вернуться в участок и составить хронологию событий",
+          minPoints: 2,
+          maxPoints: 5,
           nextScene: 1
         },
         {
           label: "Заехать на заправку ещё раз — поговорить с Биллом о заводе",
+          minPoints: 2,
+          maxPoints: 5,
           nextScene: 2
         }
       ]

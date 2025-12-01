@@ -21,11 +21,15 @@ const scene5 = {
         {
           label: "Осмотреть двор и периметр завода",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 3
         },
         {
           label: "Сразу попытаться найти вход внутрь",
           fear: 1,
+          minPoints: 2,
+          maxPoints: 5,
           next: 4
         }
       ]
@@ -47,11 +51,15 @@ const scene5 = {
         {
           label: "Посветить фонариком внутрь и прислушаться",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 6
         },
         {
           label: "Просто открыть дверь и войти",
           fear: 1,
+          minPoints: 1,
+          maxPoints: 5,
           next: 7
         }
       ]
@@ -73,11 +81,15 @@ const scene5 = {
         {
           label: "Замереть и прислушаться",
           fear: 1,
+          minPoints: 1,
+          maxPoints: 5,
           next: 9
         },
         {
           label: "Сделать шаг назад, но всё равно войти",
           fear: 2,
+          minPoints: 2,
+          maxPoints: 6,
           next: 9
         }
       ]
@@ -108,10 +120,14 @@ const scene5 = {
       options: [
         {
           label: "Следовать по стрелке к лабораторному блоку",
+          minPoints: 3,
+          maxPoints: 7,
           nextScene: 6
         },
         {
           label: "Отступить и вернуться в участок с тем, что уже знаешь",
+          minPoints: 2,
+          maxPoints: 6,
           nextScene: 4
         }
       ]

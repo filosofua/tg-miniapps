@@ -1,0 +1,11 @@
+<svg width="360" height="480" viewBox="0 0 360 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Финальный NFT: Бейдж Project SILENCER">
+  <rect width="360" height="480" rx="24" fill="#0b1324"/>
+  <rect x="40" y="60" width="280" height="320" rx="22" fill="#0f172a" stroke="#a78bfa" stroke-width="4"/>
+  <rect x="100" y="110" width="160" height="200" rx="18" fill="#a855f7" opacity="0.25"/>
+  <rect x="110" y="140" width="140" height="140" rx="16" fill="#c4b5fd"/>
+  <path d="M130 230 L230 230" stroke="#4c1d95" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="180" cy="210" r="26" fill="#7c3aed"/>
+  <rect x="80" y="360" width="200" height="60" rx="12" fill="#111827" stroke="#c084fc" stroke-width="3"/>
+  <text x="180" y="390" fill="#ede9fe" font-family="'Inter', system-ui" font-size="18" font-weight="700" text-anchor="middle">Бейдж Project SILENCER</text>
+  <text x="180" y="415" fill="#c084fc" font-family="'Inter', system-ui" font-size="13" text-anchor="middle">rare • end_002</text>
+</svg>

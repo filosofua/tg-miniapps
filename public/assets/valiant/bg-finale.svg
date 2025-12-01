@@ -1,0 +1,31 @@
+<svg width="960" height="540" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Туманная развязка с силуэтом монстра">
+  <defs>
+    <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#05070f"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#111827" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#mist)"/>
+  <rect width="960" height="540" fill="url(#halo)"/>
+  <g fill="#0c1324" opacity="0.9">
+    <rect x="0" y="360" width="960" height="180"/>
+    <polygon points="0,360 120,300 200,330 40,380"/>
+    <polygon points="200,360 360,280 470,330 280,380" opacity="0.9"/>
+    <polygon points="460,360 640,270 820,320 660,380" opacity="0.85"/>
+    <polygon points="760,360 900,310 960,340 960,400" opacity="0.8"/>
+  </g>
+  <g fill="#0f172a" opacity="0.65">
+    <ellipse cx="300" cy="280" rx="40" ry="70"/>
+    <ellipse cx="660" cy="270" rx="38" ry="80"/>
+    <ellipse cx="500" cy="260" rx="26" ry="50"/>
+  </g>
+  <g fill="#111827" opacity="0.8">
+    <circle cx="320" cy="240" r="10"/>
+    <circle cx="680" cy="230" r="10"/>
+  </g>
+  <rect width="960" height="540" fill="#cbd5e1" opacity="0.05"/>
+</svg>

@@ -1,0 +1,5 @@
+[
+  { "id": "end_001", "name": "Пластинка с шёпотом", "rarity": "common", "weight": 60, "image": "/assets/nft/end_001.svg" },
+  { "id": "end_002", "name": "Бейдж Project SILENCER", "rarity": "rare", "weight": 30, "image": "/assets/nft/end_002.svg" },
+  { "id": "end_003", "name": "Фотоплёнка из лаборатории", "rarity": "legendary", "weight": 10, "image": "/assets/nft/end_003.svg" }
+]
