@@ -1,16 +1,80 @@
-# React + Vite
+# Ashwood, Oregon · 1976 — Telegram Mini App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Детективный комикс-квест с шестью сценами, системой выборов, локальной NFT-генерацией и кликер-фармом после сюжета. Все ассеты — текстовые: SVG data-uri в коде, без бинарных файлов.
 
-Currently, two official plugins are available:
+## Ключевые возможности
+- 🎭 Создание детектива (имя, архетип, настрой) + локальный NFT персонажа (SVG data-uri + JSON метаданные).
+- 🗃 6 сцен комикса: участок → Харперы → заправка → завод → монстр → финал, с влиянием на Fear / Investigation / Moral и инвентарь.
+- 🧠 Сцены — шаги типа `dialogue`, `choice`, `add_item`, `stat`, `transition`, `finish` с переходами и изменением характеристик.
+- 🖼 Плейсхолдер-арт в стиле 70-х (city/police/home/gas/factory/monster) генерируется кодом; бинарники не используются.
+- 🪙 Farm-mode: кликер с апгрейдами `autoClickRate`, `clickMultiplier`, `passiveIncome`, сохранение прогресса и локальный лидерборд.
+- 👥 Реферальный старт `/start <refId>` сохраняется в состоянии и влияет на список приглашённых друзей.
+- 🧾 NFT финала (common/rare/legendary) на основе итоговых статов игрока.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Структура
+```
+src/
+  App.jsx
+  main.jsx
+  styles.css
+  scenes/scene1.js ... scene6.js
+  components/
+    SceneRenderer.jsx
+    DialogueBox.jsx
+    ChoiceButtons.jsx
+    CharacterCreate.jsx
+    Leaderboard.jsx
+    IntroScene.jsx
+  engine/
+    stateManager.js
+    nftGenerator.js
+  farm/
+    FarmEngine.jsx
+    FarmUI.jsx
+  assets/
+    images/index.js (SVG data-uri плейсхолдеры)
+```
+`public/` и бинарные ассеты не используются.
 
-## React Compiler
+## Формат сохранения
+`localStorage` ключ `ashwood-oregon-state-v2`:
+```json
+{
+  "player": {"name":"", "archetype":"", "fear":0, "investigation":0, "moral":0, "inventory":[]},
+  "sceneId": "intro" | "scene1" ... "farm",
+  "sceneStep": 0,
+  "introDone": false,
+  "nftCharacter": {},
+  "nftFinal": {},
+  "farmCoins": 0,
+  "upgrades": {"autoClickRate":0,"clickMultiplier":1,"passiveIncome":0},
+  "referrals": [],
+  "leaderboard": [],
+  "startSignature": "start:<ref> | q:<id> | auth:<time> | local-run",
+  "runId": <timestamp>
+}
+```
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Запуск
+```
+npm install
+npm run dev        # локальная разработка
+npm run build      # прод сборка
+npm run preview    # предпросмотр dist
+npm run check:nobinary # убедиться, что нет запрещённых бинарных файлов
+npm run verify     # check:nobinary + build
+```
 
-## Expanding the ESLint configuration
+## Геймплейный поток
+1. **Создание детектива** → генерация NFT персонажа.
+2. **Интро**: двигай детектива вправо до участка.
+3. **Сцены 1–6**: диалоги, выборы, предметы; финал выдаёт NFT редкости common/rare/legendary.
+4. **Farm-mode**: кликер, апгрейды и локальный лидерборд друзей/рефералов.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Как встроить в Telegram Mini App
+- Страница инициализирует `Telegram.WebApp`, читает `initData` и `start_param` для реферала.
+- `start` в ссылке (`https://t.me/<bot>?start=<ref>`) создаёт новый `startSignature` и сбрасывает сохранение под эту сессию.
+- Визуальный стиль: тёмный нуар 70-х, комикс-рамки, туман, минимальные анимации.
+
+## Зачем нет PNG/JPG
+Политика проекта: никаких бинарных ассетов в репозитории. Вся графика — строковые SVG / data-uri в `src/assets/images/index.js`. Чтобы заменить плейсхолдеры, отредактируй генераторы или подключи внешние URL без добавления файлов.
