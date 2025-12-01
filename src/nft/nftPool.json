@@ -1,0 +1,7 @@
+[
+  { "id": "det_001", "name": "Альма Блюм", "rarity": "common", "weight": 50 },
+  { "id": "det_002", "name": "Джек Мэрроу", "rarity": "common", "weight": 50 },
+  { "id": "det_003", "name": "Фэйлин Круз", "rarity": "rare", "weight": 30 },
+  { "id": "det_004", "name": "Люк \"Глухой\" Норрис", "rarity": "rare", "weight": 30 },
+  { "id": "det_005", "name": "Эванджелин Рэй", "rarity": "legendary", "weight": 10 }
+]

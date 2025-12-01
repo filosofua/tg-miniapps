@@ -21,11 +21,15 @@ const scene4 = {
         {
           label: "Рассказать о заправке и странных друзьях Дэнни",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 3
         },
         {
           label: "Рассказать о доме и записях Дэнни про завод",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 4
         }
       ]
@@ -57,11 +61,15 @@ const scene4 = {
         {
           label: "Почему завод закрыли?",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 8
         },
         {
           label: "Что значит 'похуже'?",
           fear: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 9
         }
       ]
@@ -92,10 +100,14 @@ const scene4 = {
       options: [
         {
           label: "Отправиться на старый завод",
+          minPoints: 3,
+          maxPoints: 7,
           nextScene: 5
         },
         {
           label: "Ещё раз проверить заправку и расспросить Билла о прошлом завода",
+          minPoints: 2,
+          maxPoints: 6,
           nextScene: 2
         }
       ]

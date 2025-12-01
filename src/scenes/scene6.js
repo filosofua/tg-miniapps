@@ -21,11 +21,15 @@ const scene6 = {
         {
           label: "Осторожно приоткрыть дверь и заглянуть внутрь",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 3
         },
         {
           label: "Резко распахнуть дверь, чтобы не дать себе времени бояться",
           fear: 2,
+          minPoints: 2,
+          maxPoints: 6,
           next: 4
         }
       ]
@@ -62,11 +66,15 @@ const scene6 = {
         {
           label: "Изучить магнитную ленту и приборы вокруг",
           investigation: 1,
+          minPoints: 2,
+          maxPoints: 6,
           next: 9
         },
         {
           label: "Осмотреть тёмный угол комнаты, откуда тянет холодом",
           fear: 2,
+          minPoints: 2,
+          maxPoints: 6,
           next: 10
         }
       ]
@@ -93,11 +101,15 @@ const scene6 = {
         {
           label: "Медленно отступать к выходу, не издавая ни звука",
           fear: 1,
+          minPoints: 1,
+          maxPoints: 5,
           next: 13
         },
         {
           label: "Рвануть к лестнице, забыв о тишине",
           fear: 3,
+          minPoints: 2,
+          maxPoints: 7,
           next: 14
         }
       ]
@@ -123,10 +135,14 @@ const scene6 = {
       options: [
         {
           label: "Вернуться в участок и оформить материалы дела",
+          minPoints: 3,
+          maxPoints: 8,
           nextScene: 0
         },
         {
           label: "Сделать пометку в своём блокноте: 'Это ещё не конец'",
+          minPoints: 3,
+          maxPoints: 8,
           nextScene: 0
         }
       ]

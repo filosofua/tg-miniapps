@@ -1,20 +1,37 @@
 // src/ClickerFarm.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export default function ClickerFarm({ onResetStory }) {
+function buildInitialFarmState(initialCoins) {
+  return {
+    coins: Math.max(initialCoins || 0, 0),
+    level: 1,
+    incomePerTick: 1, // сколько монет в секунду капает
+    clickBonus: 1
+  };
+}
+
+export default function ClickerFarm({
+  playerName,
+  starterNft,
+  finalNft,
+  initialCoins = 0,
+  onResetStory
+}) {
   const [state, setState] = useState(() => {
     try {
       const raw = localStorage.getItem("ashwood_farm_state");
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          ...buildInitialFarmState(initialCoins),
+          ...parsed,
+          coins: Math.max(parsed.coins ?? 0, initialCoins ?? 0)
+        };
+      }
     } catch (e) {
       console.error(e);
     }
-    return {
-      coins: 0,
-      level: 1,
-      incomePerTick: 1, // сколько монет в секунду капает
-      clickBonus: 1
-    };
+    return buildInitialFarmState(initialCoins);
   });
 
   // авто-фарм каждую секунду
@@ -40,6 +57,10 @@ export default function ClickerFarm({ onResetStory }) {
   const canUpgradeIncome = state.coins >= 50;
   const canUpgradeClick = state.coins >= 30;
 
+  const badges = useMemo(() => {
+    return [starterNft, finalNft].filter(Boolean);
+  }, [starterNft, finalNft]);
+
   return (
     <div
       style={{
@@ -53,9 +74,36 @@ export default function ClickerFarm({ onResetStory }) {
     >
       <h1 style={{ marginBottom: 8 }}>Ashwood Bureau: Фарм режим</h1>
       <p style={{ marginBottom: 16 }}>
-        История расследования завершена. Теперь ты управляешь собственным бюро —
-        можешь фармить ресурсы для будущих дел.
+        История расследования завершена. {playerName || "Детектив"}, теперь ты
+        управляешь собственным бюро — фарми ресурсы для будущих дел.
       </p>
+
+      {badges.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            marginBottom: 16
+          }}
+        >
+          {badges.map((badge) => (
+            <div
+              key={badge.id}
+              style={{
+                border: "1px solid #334155",
+                borderRadius: 12,
+                padding: "10px 12px",
+                background: "rgba(51, 65, 85, 0.2)",
+                fontSize: 13
+              }}
+            >
+              <div style={{ fontWeight: 700 }}>{badge.name}</div>
+              <div style={{ opacity: 0.7 }}>rarity: {badge.rarity}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div
         style={{

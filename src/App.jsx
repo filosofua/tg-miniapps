@@ -3,6 +3,9 @@ import "./App.css";
 import SceneRenderer from "./components/SceneRenderer";
 import ClickerFarm from "./ClickerFarm";
 import IntroScene from "./components/IntroScene";
+import CharacterCreate from "./components/CharacterCreate";
+import endingNftPool from "./nft/endingNftPool.json";
+import { pickRandomNft } from "./nft/nftGenerator";
 
 import scene1 from "./scenes/scene1.js";
 import scene2 from "./scenes/scene2.js";
@@ -24,15 +27,21 @@ const STORAGE_KEY = "ashwood_game_state";
 
 function getDefaultState() {
   return {
+    created: false,
     introCompleted: false,
     mode: "story", // 'story' | 'farm'
     sceneId: 1,
     player: {
+      name: "",
+      persona: "calm",
+      nftCharacter: null,
+      points: 0,
       fear: 0,
       investigation: 0,
       inventory: []
     },
-    finished: false
+    finished: false,
+    finalNft: null
   };
 }
 
@@ -51,7 +60,8 @@ function loadInitialState() {
         player: {
           ...fallbackState.player,
           ...(parsed.player || {})
-        }
+        },
+        created: parsed.created ?? Boolean(parsed?.player?.name)
       };
     }
   } catch (e) {
@@ -64,7 +74,7 @@ function loadInitialState() {
 export default function App() {
   const [state, setState] = useState(loadInitialState);
 
-  const { introCompleted, mode, sceneId, player, finished } = state;
+  const { created, introCompleted, mode, sceneId, player, finished } = state;
 
   // сохраняем игру
   useEffect(() => {
@@ -92,13 +102,34 @@ export default function App() {
     });
   }
 
+  function handleCharacterCreated(payload) {
+    setState((prev) => ({
+      ...prev,
+      created: true,
+      introCompleted: false,
+      mode: "story",
+      sceneId: 1,
+      finished: false,
+      player: {
+        ...prev.player,
+        ...payload,
+        fear: 0,
+        investigation: 0,
+        points: 0,
+        inventory: []
+      },
+      finalNft: null
+    }));
+  }
+
   function handleNextScene(nextSceneId) {
     // 0 = сюжет пройден → включаем фарм
     if (nextSceneId === 0) {
       setState((prev) => ({
         ...prev,
         mode: "farm",
-        finished: true
+        finished: true,
+        finalNft: prev.finalNft || pickRandomNft(endingNftPool)
       }));
       return;
     }
@@ -110,7 +141,12 @@ export default function App() {
   }
 
   function resetStory() {
+    localStorage.removeItem("ashwood_farm_state");
     setState(getDefaultState());
+  }
+
+  if (!created) {
+    return <CharacterCreate onComplete={handleCharacterCreated} />;
   }
 
   if (!introCompleted) {
@@ -131,7 +167,15 @@ export default function App() {
   }
 
   if (mode === "farm") {
-    return <ClickerFarm onResetStory={resetStory} />;
+    return (
+      <ClickerFarm
+        playerName={player.name}
+        starterNft={player.nftCharacter}
+        finalNft={state.finalNft}
+        initialCoins={player.points}
+        onResetStory={resetStory}
+      />
+    );
   }
 
   const sceneData = scenesById[sceneId];
@@ -155,8 +199,16 @@ export default function App() {
       />
 
       <div className="status-pill">
-        Страх: {player.fear} | Расследование: {player.investigation}
-        {finished && " | История завершена"}
+        <div className="status-pill__line">{player.name || "Детектив"}</div>
+        {player.nftCharacter && (
+          <div className="status-pill__line">
+            NFT: {player.nftCharacter.name} ({player.nftCharacter.rarity})
+          </div>
+        )}
+        <div className="status-pill__line">
+          Очки: {player.points} | Страх: {player.fear} | Расследование: {player.investigation}
+          {finished && " | История завершена"}
+        </div>
       </div>
     </div>
   );
